@@ -32,15 +32,6 @@
   <string name="exo_controls_cc_enabled_description">Desactiva os subtítulos</string>
   <string name="exo_controls_cc_disabled_description">Activa os subtítulos</string>
   <string name="exo_controls_playback_speed">Velocidade</string>
-  <string-array name="exo_controls_playback_speeds">
-    <item>x 0,25</item>
-    <item>x 0,5</item>
-    <item>x 0,75</item>
-    <item>Normal</item>
-    <item>x 1,25</item>
-    <item>x 1,5</item>
-    <item>x 2</item>
-  </string-array>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_none">Ningunha pista</string>
   <string name="exo_track_selection_auto">Pista automática</string>

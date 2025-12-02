@@ -74,14 +74,11 @@
   <string name="exo_controls_playback_speed">Speed</string>
   <!-- LINT.IfChange(playback_speeds) -->
   <!-- Different media playback speeds from one quarter normal speed ("0.25x") to double normal speed ("2x"). The fourth item ("Normal") corresponds to normal playback speed. [CHAR_LIMIT=16] -->
-  <string-array name="exo_controls_playback_speeds">
-    <item>0.25x</item>
-    <item>0.5x</item>
-    <item>0.75x</item>
-    <item>Normal</item>
-    <item>1.25x</item>
-    <item>1.5x</item>
-    <item>2x</item>
+  <string-array name="exo_controls_playback_speeds" translatable="false">
+    <item>x0.5</item>
+    <item>x1</item>
+    <item>x1.5</item>
+    <item>x2</item>
   </string-array>
   <!-- LINT.ThenChange(../../java/androidx/media3/ui/PlayerControlView.java:playback_speeds) -->
   <!-- Shown to indicate a custom playback speed. [CHAR_LIMIT=16] -->
