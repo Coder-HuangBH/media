@@ -372,7 +372,7 @@ public class PlayerControlView extends FrameLayout {
 
   // LINT.IfChange(playback_speeds)
   private static final float[] PLAYBACK_SPEEDS =
-      new float[] {0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f};
+      new float[] {0.5f, 1f, 1.5f, 2f};
   // LINT.ThenChange("../../../../res/values/strings.xml:playback_speeds")
 
   // 是否正在长按加速
@@ -1622,11 +1622,13 @@ public class PlayerControlView extends FrameLayout {
     return longPressChangeSpeedIndex;
   }
 
-  public int stopLongPressChangeSpeed() {
+  public int stopLongPressChangeSpeed(boolean keepCurrentSpeed) {
     if (!longPressChangeSpeed) return 0;
 
     longPressChangeSpeed = false;
-    setPlaybackSpeed(playbackSpeedAdapter.playbackSpeeds[beforeSpeedIndex]);
+    if (!keepCurrentSpeed) {
+      setPlaybackSpeed(playbackSpeedAdapter.playbackSpeeds[beforeSpeedIndex]);
+    }
 
     return beforeSpeedIndex;
   }

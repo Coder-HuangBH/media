@@ -2254,7 +2254,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     }
 
     @Override
-    public void onMoveUp(ControlGestureDetector.SlideType type) {
+    public void onMoveUp(ControlGestureDetector.SlideType type, MotionEvent event) {
       Log.d(TAG, "onMoveUp type : " + type);
 
       hideAllViews();
@@ -2266,9 +2266,12 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
           }
           break;
 
-        case PRESS_HORIZONTAL:
+        case PRESS_MOVE:
           if (!controllerIsFullyVisible() && controller != null) {
-            int index = controller.stopLongPressChangeSpeed();
+            int heightPixels = context.getResources().getDisplayMetrics().heightPixels;
+            // !顶部松手则固定速度
+            boolean keepCurrentSpeed = heightPixels > 0 && event.getY() < heightPixels / 5f;
+            int index = controller.stopLongPressChangeSpeed(keepCurrentSpeed);
             if (speedIndicator != null) {
               speedIndicator.updatePosition(index);
             }

@@ -20,7 +20,7 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
   private final int screenWidth;
 
   // 滑动状态跟踪
-  enum SlideType { NONE, LEFT_VERTICAL, RIGHT_VERTICAL, HORIZONTAL, PRESS_HORIZONTAL}
+  public enum SlideType { NONE, LEFT_VERTICAL, RIGHT_VERTICAL, HORIZONTAL, PRESS_MOVE}
   private SlideType currentSlideType = SlideType.NONE;
   private float totalDeltaX;
   private float totalDeltaY;
@@ -41,8 +41,8 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
     boolean endEvent = event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL;
     if (endEvent) {
       if (currentSlideType != SlideType.NONE || longPressDetector.inLongPress) {
-        SlideType upType = currentSlideType != SlideType.NONE ? currentSlideType : SlideType.PRESS_HORIZONTAL;
-        listener.onMoveUp(upType);
+        SlideType upType = currentSlideType != SlideType.NONE ? currentSlideType : SlideType.PRESS_MOVE;
+        listener.onMoveUp(upType, event);
       }
       resetSlideState();
     }
@@ -99,7 +99,7 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
     // 如果是长按事件，那就只能是长按水平滑动
     if (currentSlideType == SlideType.NONE && longPressDetector.inLongPress) {
       totalDeltaX = 0;
-      currentSlideType = SlideType.PRESS_HORIZONTAL;
+      currentSlideType = SlideType.PRESS_MOVE;
     }
 
     // 如果是新的滑动序列，初始化状态
@@ -151,7 +151,7 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
     }
 
     // 处理水平滑动
-    if (currentSlideType == SlideType.HORIZONTAL || currentSlideType == SlideType.PRESS_HORIZONTAL) {
+    if (currentSlideType == SlideType.HORIZONTAL || currentSlideType == SlideType.PRESS_MOVE) {
       // 计算当前增量
       float currentDeltaX = e2.getX() - (e1.getX() + totalDeltaX);
       // 数值过小时拦截，减少回调频率

@@ -1,5 +1,7 @@
 package androidx.media3.ui;
 
+import android.view.MotionEvent;
+
 public interface OnControlGestureListener {
 
   void onClick();
@@ -16,6 +18,6 @@ public interface OnControlGestureListener {
 
   void onLongPressAndThenHorizontalSlide(float deltaX, float totalDeltaX);
 
-  void onMoveUp(ControlGestureDetector.SlideType type);
+  void onMoveUp(ControlGestureDetector.SlideType type, MotionEvent event);
 
 }
