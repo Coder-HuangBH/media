@@ -50,4 +50,5 @@
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
   <string name="long_press_change_speed">長按時，左右拖動可切換播放速度</string>
+  <string name="long_press_uplift_fixed_speed">移動至熒幕頂部後放開，即可固定播放速度</string>
 </resources>

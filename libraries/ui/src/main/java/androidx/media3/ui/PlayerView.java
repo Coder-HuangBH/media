@@ -2211,8 +2211,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         if (speedIndicator == null) {
           Log.d(TAG, "初始化 speedIndicator");
           speedIndicator = new SpeedIndicator(context);
-          String tips = context.getResources().getString(R.string.long_press_change_speed);
-          speedIndicator.setTips(tips);
           FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
               LayoutParams.WRAP_CONTENT,
               LayoutParams.WRAP_CONTENT,

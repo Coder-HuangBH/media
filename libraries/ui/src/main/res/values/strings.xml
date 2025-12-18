@@ -122,4 +122,5 @@
   <string name="exo_item_list"><xliff:g id="list" example="apple, pear">%1$s</xliff:g>, <xliff:g id="item" example="banana">%2$s</xliff:g></string>
 
   <string name="long_press_change_speed">Press and hold, then drag left or right to switch playback speed.</string>
+  <string name="long_press_uplift_fixed_speed">Drag to the top of the screen and release to lock the video playback speed.</string>
 </resources>

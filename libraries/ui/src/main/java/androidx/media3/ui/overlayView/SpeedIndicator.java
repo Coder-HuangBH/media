@@ -18,8 +18,6 @@ import java.util.List;
 
 public class SpeedIndicator extends LinearLayout {
 
-  private RecyclerView rvSpeed;
-  private TextView tv_tips;
   private SpeedAdapter adapter;
 
   public SpeedIndicator(@NonNull Context context) {
@@ -33,24 +31,28 @@ public class SpeedIndicator extends LinearLayout {
   }
 
   private void initViews(Context context) {
-    rvSpeed = new RecyclerView(context);
+    TextView tvFixedSpeedTip = new TextView(context);
+    tvFixedSpeedTip.setTextSize(12);
+    tvFixedSpeedTip.setTextColor(Color.WHITE);
+    tvFixedSpeedTip.setText(R.string.long_press_uplift_fixed_speed);
+
+    TextView tvSpeedsTip = new TextView(context);
+    tvSpeedsTip.setTextSize(12);
+    tvSpeedsTip.setTextColor(Color.WHITE);
+    tvSpeedsTip.setText(R.string.long_press_change_speed);
+
+    RecyclerView rvSpeed = new RecyclerView(context);
     rvSpeed.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
     adapter = new SpeedAdapter();
     rvSpeed.setAdapter(adapter);
     rvSpeed.setBackgroundResource(R.drawable.speed_rv_bg);
-
-    tv_tips = new TextView(context);
-    tv_tips.setTextSize(12);
-    tv_tips.setTextColor(Color.WHITE);
     setOrientation(LinearLayout.VERTICAL);
     LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     params.gravity = Gravity.CENTER_HORIZONTAL;
-    addView(rvSpeed, params);
-    addView(tv_tips, params);
-  }
 
-  public void setTips(String tips) {
-    tv_tips.setText(tips);
+    addView(tvFixedSpeedTip, params);
+    addView(rvSpeed, params);
+    addView(tvSpeedsTip, params);
   }
 
   public void updateData(String[] strings) {
