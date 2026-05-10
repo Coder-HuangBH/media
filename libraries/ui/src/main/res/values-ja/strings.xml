@@ -49,5 +49,6 @@
   <string name="exo_track_role_closed_captions">字幕</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
-  <string name="long_press_change_speed">長押ししながら、左右にドラッグすると再生速度を切り替えることができます</string>
+  <string name="long_press_change_speed">左右にドラッグして速度を変更、上にスライドして速度を固定</string>
+  <string name="speed_lock_hint_release">指を離すと速度を固定</string>
 </resources>

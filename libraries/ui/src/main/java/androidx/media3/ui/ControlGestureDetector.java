@@ -63,6 +63,7 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
   // 重置滑动状态
   private void resetSlideState() {
     currentSlideType = SlideType.NONE;
+    totalDeltaX = 0;
     totalDeltaY = 0;
   }
 
@@ -85,7 +86,6 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
    */
   @Override
   public boolean onDown(@NonNull MotionEvent e) {
-    Log.d(TAG, "onDown");
     resetSlideState(); // 每次按下时重置状态
     return true;
   }
@@ -125,9 +125,9 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
       // 判断垂直滑动
       else if (absDeltaY > absDeltaX * 1.5) {
         // 根据起始X坐标判断左右区域
-        if (e1.getX() < screenWidth / 3) {
+        if (e1.getX() < screenWidth / 2f) {
           currentSlideType = SlideType.LEFT_VERTICAL;
-        } else if (e1.getX() > screenWidth * 2 / 3) {
+        } else /*if (e1.getX() >= screenWidth / 2f)*/ {
           currentSlideType = SlideType.RIGHT_VERTICAL;
         }
       }

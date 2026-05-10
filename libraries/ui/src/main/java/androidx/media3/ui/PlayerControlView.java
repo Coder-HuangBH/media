@@ -1626,11 +1626,13 @@ public class PlayerControlView extends FrameLayout {
     if (!longPressChangeSpeed) return 0;
 
     longPressChangeSpeed = false;
+    int currentIndex = longPressChangeSpeedIndex;
     if (!keepCurrentSpeed) {
       setPlaybackSpeed(playbackSpeedAdapter.playbackSpeeds[beforeSpeedIndex]);
+      currentIndex = beforeSpeedIndex;
     }
 
-    return beforeSpeedIndex;
+    return currentIndex;
   }
 
   public int updateLongPressSpeed(int step) {

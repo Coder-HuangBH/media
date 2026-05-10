@@ -81,7 +81,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.ui.AspectRatioFrameLayout.ResizeMode;
 import androidx.media3.ui.overlayView.ProgressIconView;
-import androidx.media3.ui.overlayView.SpeedIndicator;
+import androidx.media3.ui.overlayView.SpeedControlHintView;
 import androidx.media3.ui.overlayView.VideoProgressImageView;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -1896,7 +1896,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
     private final float speedChangeFactor = 80F;
     private float speedMoveCount = 0F;
-    private SpeedIndicator speedIndicator = null;
 
     private float videoPositionFactor = 10;
     private float videoPositionMoveCount = 0;
@@ -1906,6 +1905,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     private final StringBuilder formatBuilder;
     private final Formatter formatter;
     private VideoProgressImageView videoProgressImageView;
+    private SpeedControlHintView speedControlHintView;
 
     private final Period period;
     private @Nullable Object lastPeriodUidWithTracks;
@@ -2029,7 +2029,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     @Override
     public void onClick(View view) {
       // 无法触发该回调，已被onTouch拦截
-      throw new RuntimeException("UnSupport click event");
     }
 
     // OnControlGestureListener implementation
@@ -2208,21 +2207,21 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         // FIXME 添加震动
         int index = controller.startLongPressChangeSpeed();
 
-        if (speedIndicator == null) {
-          Log.d(TAG, "初始化 speedIndicator");
-          speedIndicator = new SpeedIndicator(context);
-          String tips = context.getResources().getString(R.string.long_press_change_speed);
-          speedIndicator.setTips(tips);
+        // 显示速度控制提示视图（遮罩层 + 提示文本 + 速度选择器）
+        if (speedControlHintView == null) {
+          Log.d(TAG, "初始化 speedControlHintView");
+          speedControlHintView = new SpeedControlHintView(context);
+          int lockAreaHeight = PlayerView.this.getHeight() / 5;
+          if (lockAreaHeight <= 0) lockAreaHeight = 1;
           FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-              LayoutParams.WRAP_CONTENT,
-              LayoutParams.WRAP_CONTENT,
-              Gravity.CENTER_HORIZONTAL);
-          params.topMargin = dp2px(16);
-          overlayFrameLayout.addView(speedIndicator, params);
+              LayoutParams.MATCH_PARENT,
+              lockAreaHeight);
+          params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+          overlayFrameLayout.addView(speedControlHintView, params);
         }
-        speedIndicator.setVisibility(VISIBLE);
-        speedIndicator.updateData(controller.getPlaybackSpeedTexts());
-        speedIndicator.updatePosition(index);
+        speedControlHintView.updateSpeedData(controller.getPlaybackSpeedTexts());
+        speedControlHintView.updateSpeedPosition(index);
+        speedControlHintView.show();
       }
     }
 
@@ -2246,8 +2245,8 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         if (step != 0) {
           speedMoveCount %= speedChangeFactor;
           int index = controller.updateLongPressSpeed(step);
-          if (speedIndicator != null) {
-            speedIndicator.updatePosition(index);
+          if (speedControlHintView != null) {
+            speedControlHintView.updateSpeedPosition(index);
           }
         }
       }
@@ -2268,12 +2267,11 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
         case PRESS_MOVE:
           if (!controllerIsFullyVisible() && controller != null) {
-            int heightPixels = context.getResources().getDisplayMetrics().heightPixels;
-            // !顶部松手则固定速度
-            boolean keepCurrentSpeed = heightPixels > 0 && event.getY() < heightPixels / 5f;
+            // 通过遮罩层判断是否应该锁定速度
+            boolean keepCurrentSpeed = speedControlHintView != null && speedControlHintView.shouldLockSpeed();
             int index = controller.stopLongPressChangeSpeed(keepCurrentSpeed);
-            if (speedIndicator != null) {
-              speedIndicator.updatePosition(index);
+            if (speedControlHintView != null) {
+              speedControlHintView.updateSpeedPosition(index);
             }
           }
           break;
@@ -2283,11 +2281,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     }
 
     private void hideAllViews() {
-      View[] views = {brightnessView, volumeView, speedIndicator, videoProgressImageView};
+      View[] views = {brightnessView, volumeView, videoProgressImageView};
       for (View view : views) {
         if (view != null) {
           view.setVisibility(GONE);
         }
+      }
+      if (speedControlHintView != null) {
+        speedControlHintView.hide();
       }
     }
 
@@ -2324,7 +2325,23 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
+      if (!useController()) {
+        return false;
+      }
       controlGestureDetector.onTouchEvent(motionEvent);
+
+      // 更新触摸位置给 SpeedControlHintView
+      if (speedControlHintView != null && speedControlHintView.getVisibility() == View.VISIBLE) {
+        int[] viewLocation = new int[2];
+        int[] hintLocation = new int[2];
+        PlayerView.this.getLocationOnScreen(viewLocation);
+        speedControlHintView.getLocationOnScreen(hintLocation);
+
+        // 将触摸坐标转换为屏幕坐标
+        float screenTouchY = viewLocation[1] + motionEvent.getY();
+        speedControlHintView.updateTouchPosition(screenTouchY, hintLocation[1], hintLocation[1] + speedControlHintView.getHeight());
+      }
+
       return true;
     }
   }

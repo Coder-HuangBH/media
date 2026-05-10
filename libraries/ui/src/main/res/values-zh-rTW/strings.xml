@@ -49,5 +49,6 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
-  <string name="long_press_change_speed">長按時，左右拖曳可切換播放速度</string>
+  <string name="long_press_change_speed">左右拖曳切換播放速度，滑至頂部可固定速率</string>
+  <string name="speed_lock_hint_release">放開固定播放速度</string>
 </resources>
