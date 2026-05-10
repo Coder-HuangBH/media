@@ -13,11 +13,12 @@
 // limitations under the License.
 buildscript {
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/public' }
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.8.1'
+        classpath 'com.android.tools.build:gradle:8.6.0'
         classpath 'com.google.android.gms:strict-version-matcher-plugin:1.2.4'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.20'
         classpath 'org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.0.20'
@@ -25,6 +26,7 @@ buildscript {
 }
 allprojects {
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/public' }
         google()
         mavenCentral()
         maven {
