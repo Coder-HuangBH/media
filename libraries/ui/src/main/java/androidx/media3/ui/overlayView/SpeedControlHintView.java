@@ -77,7 +77,7 @@ public class SpeedControlHintView extends FrameLayout {
         LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     hintParams.gravity = Gravity.CENTER_HORIZONTAL;
     hintParams.topMargin = dp2px(context, 8);
-//    hintParams.bottomMargin = dp2px(context, 8);
+    hintParams.bottomMargin = dp2px(context, 2);
     contentLayout.addView(hintText, hintParams);
 
     // 速度选择 RecyclerView
@@ -88,10 +88,22 @@ public class SpeedControlHintView extends FrameLayout {
 //    rvSpeed.setBackgroundResource(R.drawable.speed_rv_bg);
     LinearLayout.LayoutParams rvParams = new LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+    rvParams.bottomMargin = dp2px(context, 2);
     rvParams.gravity = Gravity.CENTER_HORIZONTAL;
     contentLayout.addView(rvSpeed, rvParams);
 
     applyAlpha(currentAlpha);
+  }
+
+  /**
+   * 计算内容完全显示所需的高度
+   * 通过 WRAP_CONTENT 测量内部内容，再加上上下内边距
+   */
+  public int getDesiredHeight() {
+    int widthSpec = MeasureSpec.makeMeasureSpec(getResources().getDisplayMetrics().widthPixels, MeasureSpec.AT_MOST);
+    int heightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+    measure(widthSpec, heightSpec);
+    return getMeasuredHeight() + getPaddingTop() + getPaddingBottom();
   }
 
   public void updateSpeedData(String[] strings) {

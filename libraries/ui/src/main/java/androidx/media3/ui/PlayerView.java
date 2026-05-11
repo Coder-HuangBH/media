@@ -58,6 +58,7 @@ import android.widget.TextView;
 import android.window.SurfaceSyncGroup;
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
@@ -2209,20 +2210,31 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
         // 显示速度控制提示视图（遮罩层 + 提示文本 + 速度选择器）
         if (speedControlHintView == null) {
-          Log.d(TAG, "初始化 speedControlHintView");
           speedControlHintView = new SpeedControlHintView(context);
-          int lockAreaHeight = PlayerView.this.getHeight() / 5;
-          if (lockAreaHeight <= 0) lockAreaHeight = 1;
-          FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-              LayoutParams.MATCH_PARENT,
-              lockAreaHeight);
-          params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-          overlayFrameLayout.addView(speedControlHintView, params);
         }
         speedControlHintView.updateSpeedData(controller.getPlaybackSpeedTexts());
         speedControlHintView.updateSpeedPosition(index);
         speedControlHintView.show();
+        if (speedControlHintView.getParent() == null) {
+          LayoutParams params = getLayoutParams();
+          overlayFrameLayout.addView(speedControlHintView, params);
+        }
       }
+    }
+
+    @NonNull
+    private LayoutParams getLayoutParams() {
+      int lockAreaHeight = PlayerView.this.getHeight() / 5;
+      if (lockAreaHeight <= 0) lockAreaHeight = 1;
+      // 计算内容完全显示所需的高度，取两者中的较大值
+      int contentHeight = speedControlHintView.getDesiredHeight();
+//          Log.d(TAG, "初始化 speedControlHintView, " + contentHeight + "," + lockAreaHeight);
+      lockAreaHeight = Math.max(lockAreaHeight, contentHeight);
+      LayoutParams params = new LayoutParams(
+          LayoutParams.MATCH_PARENT,
+          lockAreaHeight);
+      params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+      return params;
     }
 
     private int dp2px(int dp) {
