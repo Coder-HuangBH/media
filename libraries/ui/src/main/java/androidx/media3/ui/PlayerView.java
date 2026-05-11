@@ -2205,7 +2205,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       }
       if (controller != null) {
         speedMoveCount = 0;
-        // FIXME 添加震动
+        HapticFeedbackUtil.performLongPressHaptic(context);
         int index = controller.startLongPressChangeSpeed();
 
         // 显示速度控制提示视图（遮罩层 + 提示文本 + 速度选择器）
