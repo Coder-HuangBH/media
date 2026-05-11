@@ -41,7 +41,7 @@ public class SpeedControlHintView extends FrameLayout {
   private boolean shouldLockSpeed = false;
 
   private TextView hintText;
-  private RecyclerView rvSpeed;
+  private RecyclerView speedRecyclerView;
   private SpeedAdapter adapter;
   private ValueAnimator pulseAnimator;
 
@@ -81,16 +81,15 @@ public class SpeedControlHintView extends FrameLayout {
     contentLayout.addView(hintText, hintParams);
 
     // 速度选择 RecyclerView
-    rvSpeed = new RecyclerView(context);
-    rvSpeed.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+    speedRecyclerView = new RecyclerView(context);
+    speedRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
     adapter = new SpeedAdapter();
-    rvSpeed.setAdapter(adapter);
-//    rvSpeed.setBackgroundResource(R.drawable.speed_rv_bg);
+    speedRecyclerView.setAdapter(adapter);
     LinearLayout.LayoutParams rvParams = new LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     rvParams.bottomMargin = dp2px(context, 2);
     rvParams.gravity = Gravity.CENTER_HORIZONTAL;
-    contentLayout.addView(rvSpeed, rvParams);
+    contentLayout.addView(speedRecyclerView, rvParams);
 
     applyAlpha(currentAlpha);
   }
@@ -202,7 +201,7 @@ public class SpeedControlHintView extends FrameLayout {
   private void applyAlpha(float alpha) {
     backgroundPaint.setAlpha((int) (alpha * 255));
     hintText.setAlpha(alpha);
-    rvSpeed.setAlpha(alpha);
+    speedRecyclerView.setAlpha(alpha);
     invalidate();
   }
 

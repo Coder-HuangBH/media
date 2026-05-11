@@ -27,6 +27,7 @@ import static androidx.media3.common.util.Util.getDrawable;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -76,7 +77,6 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
-import androidx.media3.common.util.Log;
 import androidx.media3.common.util.RepeatModeUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -93,7 +93,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
@@ -1908,6 +1907,10 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     private VideoProgressImageView videoProgressImageView;
     private SpeedControlHintView speedControlHintView;
 
+    private final int[] cachedViewLocation = new int[2];
+    private final int[] cachedHintLocation = new int[2];
+    private boolean locationCacheValid = false;
+
     private final Period period;
     private @Nullable Object lastPeriodUidWithTracks;
     private final ControlGestureDetector controlGestureDetector;
@@ -2036,13 +2039,11 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
     @Override
     public void onClick() {
-      Log.d(TAG, "onClick");
       toggleControllerVisibility();
     }
 
     @Override
     public void onDoubleClick() {
-      Log.d(TAG, "onDoubleClick");
       if (controller != null && player != null && !player.isPlaying()) {
         controller.hide();
       }
@@ -2064,13 +2065,15 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
       float changeValue = -deltaY / brightnessFactor;
 
-//      Log.d(TAG, "onLeftVerticalSlide deltaY : " + deltaY
-//          + ", totalDeltaY : " + totalDeltaY + ", changeValue : " + changeValue);
       setBrightness(changeValue);
     }
 
     private void setBrightness(float changeValue) {
-      Window window = BrightnessUtil.getActivityFromContext(context).getWindow();
+      Activity activity = BrightnessUtil.getActivityFromContext(context);
+      if (activity == null) {
+        return;
+      }
+      Window window = activity.getWindow();
       float currentBrightness = BrightnessUtil.getWindowBrightness(window);
       if (currentBrightness == WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE) {
         currentBrightness = BrightnessUtil.getSystemBrightness(context) / 255F;
@@ -2078,7 +2081,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
       currentBrightness += changeValue;
       currentBrightness = Math.max(0, Math.min(1, currentBrightness));
-      Log.d(TAG, "setBrightness : " + currentBrightness);
       BrightnessUtil.setWindowBrightness(window, currentBrightness);
 
       brightnessView = updateProgressView(brightnessView,
@@ -2110,17 +2112,13 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
     @Override
     public void onRightVerticalSlide(float deltaY, float totalDeltaY) {
-//      Log.d(TAG, "onRightVerticalSlide deltaY : " + deltaY + ", totalDeltaY : " + totalDeltaY);
       if (controllerIsFullyVisible()) {
         return;
       }
 
-      // first callback
       if (deltaY == totalDeltaY) {
         int beforeVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         volumeChangeRange = new float[]{maxVolume * volumeFactor, beforeVolume * volumeFactor};
-        Log.d(TAG, "onRightVerticalSlide before : " + beforeVolume
-            + ", changeRange : " + Arrays.toString(volumeChangeRange));
       }
 
       if (deltaY == 0) return;
@@ -2138,7 +2136,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     // 设置音量 (0 ~ maxVolume)
     private void setVolume(int volume) {
       volume = Math.max(0, Math.min(maxVolume, volume));
-      Log.d(TAG, "setVolume : " + volume);
       audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
 
       volumeView = updateProgressView(volumeView,
@@ -2152,10 +2149,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         return;
       }
 
-      Log.d(TAG, "onHorizontalSlide deltaX : " + deltaX + ", totalDeltaX : " + totalDeltaX);
-
       if (deltaX == totalDeltaX) {
-        Log.d(TAG, "onHorizontalSlide reset");
         videoPositionMoveCount = 0;
 
         videoPosition = player.getCurrentPosition();
@@ -2164,7 +2158,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       }
 
       if (videoDuration <= 0) {
-        Log.d(TAG, "onHorizontalSlide videoDuration : " + videoDuration);
         return;
       }
 
@@ -2178,9 +2171,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         videoPosition += step * 1000L;
         videoPosition = Math.max(0, Math.min(videoPosition, videoDuration));
         String positionText = Util.getStringForTime(formatBuilder, formatter, videoPosition);
-
-        // update UI
-        Log.d(TAG, "onHorizontalSlide " + positionText + " / " + videoDurationText);
 
         if (videoProgressImageView == null) {
           videoProgressImageView = new VideoProgressImageView(context);
@@ -2199,7 +2189,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
     @Override
     public void onLongPress() {
-      Log.d(TAG, "onLongPress");
       if (controllerIsFullyVisible() || player == null || !player.isPlaying()) {
         return;
       }
@@ -2228,7 +2217,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       if (lockAreaHeight <= 0) lockAreaHeight = 1;
       // 计算内容完全显示所需的高度，取两者中的较大值
       int contentHeight = speedControlHintView.getDesiredHeight();
-//          Log.d(TAG, "初始化 speedControlHintView, " + contentHeight + "," + lockAreaHeight);
       lockAreaHeight = Math.max(lockAreaHeight, contentHeight);
       LayoutParams params = new LayoutParams(
           LayoutParams.MATCH_PARENT,
@@ -2247,8 +2235,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         return;
       }
 
-      Log.d(TAG, "onLongPressAndThenHorizontalSlide deltaX : " + deltaX + ", totalDeltaX : " + totalDeltaX);
-
       if (controller != null) {
 
         speedMoveCount += deltaX;
@@ -2266,8 +2252,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
     @Override
     public void onMoveUp(ControlGestureDetector.SlideType type, MotionEvent event) {
-      Log.d(TAG, "onMoveUp type : " + type);
-
       hideAllViews();
 
       switch (type) {
@@ -2302,6 +2286,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       if (speedControlHintView != null) {
         speedControlHintView.hide();
       }
+      locationCacheValid = false;
     }
 
     private void resetCustomParams() {
@@ -2344,14 +2329,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
       // 更新触摸位置给 SpeedControlHintView
       if (speedControlHintView != null && speedControlHintView.getVisibility() == View.VISIBLE) {
-        int[] viewLocation = new int[2];
-        int[] hintLocation = new int[2];
-        PlayerView.this.getLocationOnScreen(viewLocation);
-        speedControlHintView.getLocationOnScreen(hintLocation);
+        if (!locationCacheValid) {
+          PlayerView.this.getLocationOnScreen(cachedViewLocation);
+          speedControlHintView.getLocationOnScreen(cachedHintLocation);
+          locationCacheValid = true;
+        }
 
-        // 将触摸坐标转换为屏幕坐标
-        float screenTouchY = viewLocation[1] + motionEvent.getY();
-        speedControlHintView.updateTouchPosition(screenTouchY, hintLocation[1], hintLocation[1] + speedControlHintView.getHeight());
+        float screenTouchY = cachedViewLocation[1] + motionEvent.getY();
+        speedControlHintView.updateTouchPosition(screenTouchY, cachedHintLocation[1], cachedHintLocation[1] + speedControlHintView.getHeight());
       }
 
       return true;

@@ -15,12 +15,12 @@ import java.util.List;
 public class SpeedAdapter extends RecyclerView.Adapter<SpeedAdapter.ViewHolder> {
 
   // 数据集合
-  private final List<String> mData = new ArrayList<>();
+  private final List<String> data = new ArrayList<>();
 
-  private int selectPosition = 0;
+  private int selectedPosition = 0;
 
-  private final int selectColor = Color.parseColor("#FFFFFF");
-  private final int unselectColor = Color.parseColor("#B0FFFFFF");
+  private final int selectedColor = Color.parseColor("#FFFFFF");
+  private final int unselectedColor = Color.parseColor("#B0FFFFFF");
 
   // 创建ViewHolder，加载item布局
   @NonNull
@@ -36,29 +36,29 @@ public class SpeedAdapter extends RecyclerView.Adapter<SpeedAdapter.ViewHolder> 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     // 将对应位置的数据设置到TextView
-    holder.textView.setText(mData.get(position));
+    holder.textView.setText(data.get(position));
 
-    boolean selected = selectPosition == position;
-    holder.textView.setTextColor(selected ? selectColor : unselectColor);
+    boolean selected = selectedPosition == position;
+    holder.textView.setTextColor(selected ? selectedColor : unselectedColor);
     holder.imageView.setVisibility(selected ? View.VISIBLE : View.INVISIBLE);
   }
 
   public void updateData(List<String> list) {
-    mData.clear();
-    mData.addAll(list);
+    data.clear();
+    data.addAll(list);
 
     notifyDataSetChanged();
   }
 
   public void updatePosition(int position) {
-    this.selectPosition = position;
+    this.selectedPosition = position;
     notifyDataSetChanged();
   }
 
   // 返回数据数量
   @Override
   public int getItemCount() {
-    return mData.size();
+    return data.size();
   }
 
   // ViewHolder内部类，持有item视图

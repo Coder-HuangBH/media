@@ -6,9 +6,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -21,7 +19,6 @@ public class VideoProgressImageView extends FrameLayout {
   private TextView progressText;
   private TextView separatorText;
   private TextView durationText;
-  private ImageView imageView;
 
   public VideoProgressImageView(@NonNull Context context) {
     super(context);

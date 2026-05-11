@@ -9,8 +9,11 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import androidx.media3.common.util.Log;
 
 public class BrightnessUtil {
+
+  private static final String TAG = "BrightnessUtil";
 
   public static Window getWindowFromView(View view) {
     if (view != null) {
@@ -45,7 +48,7 @@ public class BrightnessUtil {
       );
       return mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
     } catch (Settings.SettingNotFoundException e) {
-      e.printStackTrace();
+      Log.e(TAG, "Failed to get auto brightness mode", e);
       return false;
     }
   }
@@ -79,8 +82,8 @@ public class BrightnessUtil {
           Settings.System.SCREEN_BRIGHTNESS
       );
     } catch (Settings.SettingNotFoundException e) {
-      e.printStackTrace();
-      return 128; // 默认中间亮度
+      Log.e(TAG, "Failed to get system brightness", e);
+      return 128;
     }
   }
 
@@ -120,6 +123,7 @@ public class BrightnessUtil {
     lp.screenBrightness = Math.max(0.0f, Math.min(1.0f, brightness));
     window.setAttributes(lp);
   }
+
   public static float getWindowBrightness(Window window) {
     WindowManager.LayoutParams lp = window.getAttributes();
     // 确保亮度值在0.0-1.0范围内

@@ -6,11 +6,9 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media3.common.util.Log;
 
 public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListener  {
 
-  private final String TAG = "ControlGestureDetector";
   private final int SLIDE_THRESHOLD = 10;
 
   private final GestureDetector gestureDetector;
@@ -51,7 +49,6 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
 
     // 不要过滤抬起事件，不然可能导致长按状态无法清除
     if (currentSlideType == SlideType.NONE || endEvent) {
-//      Log.d(TAG, "checkLongPress");
       longPressDetector.onTouchEvent(event);
     } else {
       longPressDetector.stop();
@@ -94,7 +91,6 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
   @Override
   public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
     if (e1 == null || e2 == null) return false;
-//    Log.d(TAG, "onScroll");
 
     // 如果是长按事件，那就只能是长按水平滑动
     if (currentSlideType == SlideType.NONE && longPressDetector.inLongPress) {
@@ -204,34 +200,4 @@ public class ControlGestureDetector extends GestureDetector.SimpleOnGestureListe
       stop = true;
     }
   }
-
-  /*private class LongPressGestureDetector extends GestureDetector {
-
-    private Field mInLongPressField;
-
-    public LongPressGestureDetector(@Nullable Context context) {
-      super(context, new SimpleOnGestureListener() {
-        @Override
-        public void onLongPress(@NonNull MotionEvent e) {
-          super.onLongPress(e);
-          listener.onLongPressAndThenHorizontalSlide(0,0);
-        }
-      });
-
-      try {
-        mInLongPressField = GestureDetector.class.getDeclaredField("mInLongPress");
-        mInLongPressField.setAccessible(true);
-      } catch (Exception ignored) {}
-    }
-
-    public boolean inLongPress() {
-      boolean inLongPress = false;
-      try {
-        inLongPress = (boolean) mInLongPressField.get(this);
-      } catch (Exception ignored) {}
-
-      Log.d("LongPressDetector", "inLongPress : " + inLongPress);
-      return inLongPress;
-    }
-  }*/
 }
