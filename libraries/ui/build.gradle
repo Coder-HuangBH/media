@@ -47,7 +47,8 @@ dependencies {
 }
 
 ext {
-    releaseArtifactId = 'media3-ui'
+    releaseArtifactId = 'media3-ui-private'
+    releaseVersion = '1.8.0.1'
     releaseName = 'Media3 UI module'
 }
 apply from: '../../publish.gradle'
