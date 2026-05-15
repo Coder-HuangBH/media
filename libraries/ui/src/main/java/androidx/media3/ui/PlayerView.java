@@ -226,6 +226,16 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     void onFullscreenButtonClick(boolean isFullscreen);
   }
 
+  @UnstableApi
+  public interface OnSeekPreviewListener {
+
+    void onSeekPreviewStart(long positionMs);
+
+    void onSeekPreviewMove(long positionMs);
+
+    void onSeekPreviewStop(long positionMs, boolean canceled);
+  }
+
   /**
    * Determines the artwork display mode. One of {@link #ARTWORK_DISPLAY_MODE_OFF}, {@link
    * #ARTWORK_DISPLAY_MODE_FIT} or {@link #ARTWORK_DISPLAY_MODE_FILL}.
@@ -342,6 +352,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   private PlayerControlView.VisibilityListener legacyControllerVisibilityListener;
 
   @Nullable private FullscreenButtonClickListener fullscreenButtonClickListener;
+  @Nullable private OnSeekPreviewListener seekPreviewListener;
 
   private @ArtworkDisplayMode int artworkDisplayMode;
   private @ImageDisplayMode int imageDisplayMode;
@@ -1170,6 +1181,11 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     controller.setOnFullScreenModeChangedListener(componentListener);
   }
 
+  @UnstableApi
+  public void setOnSeekPreviewListener(@Nullable OnSeekPreviewListener listener) {
+    this.seekPreviewListener = listener;
+  }
+
   /**
    * Sets whether the player is currently in fullscreen, this will change the displayed icon.
    *
@@ -1902,6 +1918,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     private long videoPosition = 0;
     private long videoDuration = 0;
     private String videoDurationText = "";
+    private boolean isSeekPreviewing;
     private final StringBuilder formatBuilder;
     private final Formatter formatter;
     private VideoProgressImageView videoProgressImageView;
@@ -2155,6 +2172,10 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         videoPosition = player.getCurrentPosition();
         videoDuration = player.getDuration();
         videoDurationText = Util.getStringForTime(formatBuilder, formatter, videoDuration);
+        isSeekPreviewing = true;
+        if (seekPreviewListener != null) {
+          seekPreviewListener.onSeekPreviewStart(videoPosition);
+        }
       }
 
       if (videoDuration <= 0) {
@@ -2184,6 +2205,9 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         videoProgressImageView.setVisibility(VISIBLE);
         videoProgressImageView.setProgressText(positionText);
         videoProgressImageView.setDurationText(videoDurationText);
+        if (seekPreviewListener != null) {
+          seekPreviewListener.onSeekPreviewMove(videoPosition);
+        }
       }
     }
 
@@ -2257,8 +2281,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       switch (type) {
         case HORIZONTAL:
           if (!controllerIsFullyVisible() && player != null) {
+            if (isSeekPreviewing && seekPreviewListener != null) {
+              seekPreviewListener.onSeekPreviewStop(videoPosition, false);
+            }
             player.seekTo(videoPosition);
+          } else if (isSeekPreviewing && seekPreviewListener != null) {
+            seekPreviewListener.onSeekPreviewStop(videoPosition, true);
           }
+          isSeekPreviewing = false;
           break;
 
         case PRESS_MOVE:
